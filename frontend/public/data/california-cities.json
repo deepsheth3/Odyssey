@@ -1,0 +1,139 @@
+{
+  "cities": [
+    {
+      "name": "San Francisco",
+      "slug": "san-francisco",
+      "region": "Bay Area",
+      "coordinates": { "lat": 37.7749, "lng": -122.4194 },
+      "description": "The City by the Bay - iconic bridges, steep hills, world-class food",
+      "image": "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800",
+      "tags": ["urban", "food", "culture", "iconic"]
+    },
+    {
+      "name": "Los Angeles",
+      "slug": "los-angeles",
+      "region": "Southern California",
+      "coordinates": { "lat": 34.0522, "lng": -118.2437 },
+      "description": "Entertainment capital with beaches, mountains, and endless sunshine",
+      "image": "https://images.unsplash.com/photo-1534190760961-74e8c1c5c3da?w=800",
+      "tags": ["urban", "beaches", "entertainment", "diverse"]
+    },
+    {
+      "name": "San Diego",
+      "slug": "san-diego",
+      "region": "Southern California",
+      "coordinates": { "lat": 32.7157, "lng": -117.1611 },
+      "description": "Perfect weather, stunning coastline, laid-back vibes",
+      "image": "https://images.unsplash.com/photo-1538689621163-f5be0ad11c46?w=800",
+      "tags": ["beaches", "relaxation", "outdoor", "family"]
+    },
+    {
+      "name": "Monterey",
+      "slug": "monterey",
+      "region": "Central Coast",
+      "coordinates": { "lat": 36.6002, "lng": -121.8947 },
+      "description": "Stunning aquarium, whale watching, and dramatic coastline",
+      "image": "https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?w=800",
+      "tags": ["coastal", "nature", "wildlife", "scenic"]
+    },
+    {
+      "name": "Santa Barbara",
+      "slug": "santa-barbara",
+      "region": "Central Coast",
+      "coordinates": { "lat": 34.4208, "lng": -119.6982 },
+      "description": "The American Riviera - Spanish architecture, wine country, beaches",
+      "image": "https://images.unsplash.com/photo-1533002832-1702b319004e?w=800",
+      "tags": ["wine", "beaches", "romantic", "upscale"]
+    },
+    {
+      "name": "Napa Valley",
+      "slug": "napa-valley",
+      "region": "Wine Country",
+      "coordinates": { "lat": 38.2975, "lng": -122.2869 },
+      "description": "World-renowned wine region with gourmet dining and hot air balloons",
+      "image": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=800",
+      "tags": ["wine", "food", "romantic", "luxury"]
+    },
+    {
+      "name": "Palm Springs",
+      "slug": "palm-springs",
+      "region": "Desert",
+      "coordinates": { "lat": 33.8303, "lng": -116.5453 },
+      "description": "Mid-century modern paradise with desert beauty and hot springs",
+      "image": "https://images.unsplash.com/photo-1545153996-e01b50c6ecfa?w=800",
+      "tags": ["desert", "relaxation", "architecture", "wellness"]
+    },
+    {
+      "name": "Lake Tahoe",
+      "slug": "lake-tahoe",
+      "region": "Sierra Nevada",
+      "coordinates": { "lat": 39.0968, "lng": -120.0324 },
+      "description": "Crystal-clear alpine lake with skiing, hiking, and stunning views",
+      "image": "https://images.unsplash.com/photo-1518623489648-a173ef7824f3?w=800",
+      "tags": ["outdoor", "adventure", "skiing", "nature"]
+    },
+    {
+      "name": "Yosemite",
+      "slug": "yosemite",
+      "region": "Sierra Nevada",
+      "coordinates": { "lat": 37.8651, "lng": -119.5383 },
+      "description": "Majestic waterfalls, giant sequoias, and granite cliffs",
+      "image": "https://images.unsplash.com/photo-1472396961693-142e6e269027?w=800",
+      "tags": ["nature", "hiking", "photography", "iconic"]
+    },
+    {
+      "name": "Carmel-by-the-Sea",
+      "slug": "carmel-by-the-sea",
+      "region": "Central Coast",
+      "coordinates": { "lat": 36.5552, "lng": -121.9233 },
+      "description": "Fairy-tale village with art galleries, no street addresses, and pristine beach",
+      "image": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800",
+      "tags": ["charming", "art", "romantic", "coastal"]
+    },
+    {
+      "name": "Big Sur",
+      "slug": "big-sur",
+      "region": "Central Coast",
+      "coordinates": { "lat": 36.2704, "lng": -121.8081 },
+      "description": "Dramatic coastal cliffs, redwood forests, and iconic Highway 1",
+      "image": "https://images.unsplash.com/photo-1473442240418-452f03b7ae40?w=800",
+      "tags": ["scenic", "nature", "adventure", "photography"]
+    },
+    {
+      "name": "Joshua Tree",
+      "slug": "joshua-tree",
+      "region": "Desert",
+      "coordinates": { "lat": 33.8734, "lng": -115.9010 },
+      "description": "Otherworldly desert landscape with unique trees and stargazing",
+      "image": "https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=800",
+      "tags": ["desert", "adventure", "photography", "unique"]
+    },
+    {
+      "name": "Sacramento",
+      "slug": "sacramento",
+      "region": "Central Valley",
+      "coordinates": { "lat": 38.5816, "lng": -121.4944 },
+      "description": "California's capital with farm-to-fork dining and gold rush history",
+      "image": "https://images.unsplash.com/photo-1597466765990-64ad1c35dafc?w=800",
+      "tags": ["history", "food", "urban", "family"]
+    },
+    {
+      "name": "Santa Cruz",
+      "slug": "santa-cruz",
+      "region": "Bay Area",
+      "coordinates": { "lat": 36.9741, "lng": -122.0308 },
+      "description": "Beach boardwalk, surfing culture, and redwood forests",
+      "image": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800",
+      "tags": ["beaches", "surfing", "family", "fun"]
+    },
+    {
+      "name": "Death Valley",
+      "slug": "death-valley",
+      "region": "Desert",
+      "coordinates": { "lat": 36.5054, "lng": -117.0794 },
+      "description": "Extreme landscapes, salt flats, and the hottest place on Earth",
+      "image": "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800",
+      "tags": ["desert", "extreme", "photography", "unique"]
+    }
+  ]
+}

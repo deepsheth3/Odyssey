@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+:root {
+  --foreground-rgb: 34, 34, 34;
+  /* #222222 Airbnb Text */
+  --background-start-rgb: 255, 255, 255;
+  --background-end-rgb: 255, 255, 255;
+  --primary: #FF385C;
+  /* Odyssey Red */
+  --primary-hover: #D90B3E;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: white;
+  font-family: 'Circular', -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 
+   Tailwind v4 doesn't support @apply in the same way without setup.
+   We will move these utility classes directly to the components for now 
+   to ensure stability.
+*/
+.search-shadow {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10);
+}
