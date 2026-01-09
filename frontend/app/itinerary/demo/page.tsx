@@ -1,16 +1,92 @@
 "use client";
 import { motion } from "framer-motion";
-import { MapPin, Clock, ArrowDown } from "lucide-react";
+import { MapPin, Clock, ArrowDown, Loader2 } from "lucide-react";
 import MagneticButton from "@/components/MagneticButton";
+import { useEffect, useState } from "react";
+import { optimizeRoute, getRouteDetails, OptimizeRouteResponse, RouteDetailsResponse } from "@/services/api";
+
+// Demo trip data with addresses for the API
+const tripStops = [
+    {
+        time: "09:00 AM",
+        title: "Breakfast at Ken's",
+        address: "Ken's Creekside Restaurant, Sedona, AZ",
+        desc: "The best pancakes in Sedona.",
+        icon: "🥞"
+    },
+    {
+        time: "10:30 AM",
+        title: "Cathedral Rock Hike",
+        address: "Cathedral Rock Trailhead, Sedona, AZ",
+        desc: "Optimized route to avoid the crowds.",
+        icon: "🥾"
+    },
+    {
+        time: "01:00 PM",
+        title: "Tlaquepaque Arts",
+        address: "Tlaquepaque Arts & Shopping Village, Sedona, AZ",
+        desc: "Lunch and shopping.",
+        icon: "🎨"
+    },
+    {
+        time: "03:30 PM",
+        title: "Chapel of the Holy Cross",
+        address: "Chapel of the Holy Cross, Sedona, AZ",
+        desc: "Perfect lighting for photos.",
+        icon: "📸"
+    },
+    {
+        time: "06:00 PM",
+        title: "Mariposa Latin Grill",
+        address: "Mariposa Latin Inspired Grill, Sedona, AZ",
+        desc: "Sunset dinner with a view.",
+        icon: "🍷"
+    },
+];
 
 export default function DemoItinerary() {
-    const trip = [
-        { time: "09:00 AM", title: "Breakfast at Ken's", desc: "The best pancakes in Sedona.", icon: "🥞" },
-        { time: "10:30 AM", title: "Cathedral Rock Hike", desc: "Optimized route to avoid the crowds.", icon: "🥾" },
-        { time: "01:00 PM", title: "Tlaquepaque Arts", desc: "Lunch and shopping. Just 10 min drive.", icon: "🎨" },
-        { time: "03:30 PM", title: "Chapel of the Holy Cross", desc: "Perfect lighting for photos.", icon: "📸" },
-        { time: "06:00 PM", title: "Mariposa Latin Grill", desc: "Sunset dinner with a view.", icon: "🍷" },
-    ];
+    const [timeSaved, setTimeSaved] = useState<string>("--");
+    const [totalDriveTime, setTotalDriveTime] = useState<string>("--");
+    const [routeDetails, setRouteDetails] = useState<RouteDetailsResponse | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        async function fetchRouteData() {
+            try {
+                setLoading(true);
+
+                // Get all addresses
+                const addresses = tripStops.map(stop => stop.address);
+                const startLocation = "Sedona, AZ"; // Starting point
+
+                // Optimize the route and get time saved
+                const optimizeResult = await optimizeRoute({
+                    start: startLocation,
+                    stops: addresses,
+                    end: startLocation // Round trip back to start
+                });
+
+                setTimeSaved(optimizeResult.time_saved_formatted);
+
+                // Get route details for the optimized order
+                const details = await getRouteDetails(optimizeResult.optimized_order);
+                setRouteDetails(details);
+                setTotalDriveTime(details.total_duration_formatted);
+
+            } catch (err) {
+                console.error("Failed to fetch route data:", err);
+                setError("Could not load route data. Using demo values.");
+                // Fallback to placeholder values
+                setTimeSaved("12 min");
+                setTotalDriveTime("45 min");
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchRouteData();
+    }, []);
 
     return (
         <div className="min-h-screen bg-white text-black pt-32 pb-20 px-6 md:px-12 lg:px-24">
@@ -19,7 +95,16 @@ export default function DemoItinerary() {
                     <div>
                         <div className="text-[#FF385C] font-bold tracking-widest uppercase text-xs mb-2">Sample Itinerary</div>
                         <h1 className="text-5xl md:text-7xl font-bold tracking-tighter">Day 1 in Sedona</h1>
-                        <p className="text-gray-500 mt-4 text-xl">0 mins of backtracking using Odyssey AI.</p>
+                        <p className="text-gray-500 mt-4 text-xl">
+                            {loading ? (
+                                <span className="flex items-center gap-2">
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                    Calculating optimal route...
+                                </span>
+                            ) : (
+                                <>Total drive time: <span className="font-semibold text-black">{totalDriveTime}</span></>
+                            )}
+                        </p>
                     </div>
                     <MagneticButton className="mt-6 md:mt-0 bg-black text-white px-8 py-4 rounded-full font-bold">
                         Edit this trip
@@ -27,7 +112,7 @@ export default function DemoItinerary() {
                 </div>
 
                 <div className="relative border-l-2 border-gray-100 ml-4 md:ml-12 pl-12 space-y-16">
-                    {trip.map((stop, i) => (
+                    {tripStops.map((stop, i) => (
                         <motion.div
                             key={i}
                             initial={{ opacity: 0, x: -20 }}
@@ -46,6 +131,12 @@ export default function DemoItinerary() {
                                 <div>
                                     <div className="flex items-center gap-3 text-sm font-bold text-gray-400 uppercase tracking-widest mb-1">
                                         <Clock size={14} /> {stop.time}
+                                        {/* Show drive time from previous stop */}
+                                        {routeDetails && i > 0 && routeDetails.segments[i - 1] && (
+                                            <span className="text-[#FF385C] normal-case">
+                                                • {routeDetails.segments[i - 1].duration_text} drive
+                                            </span>
+                                        )}
                                     </div>
                                     <h3 className="text-2xl font-bold mb-2">{stop.title}</h3>
                                     <p className="text-gray-600 text-lg">{stop.desc}</p>
@@ -64,7 +155,19 @@ export default function DemoItinerary() {
                             <div className="text-green-500 bg-green-100 p-2 rounded-full"><ArrowDown size={20} /></div>
                             <span className="font-bold text-green-600 uppercase text-xs tracking-widest">Efficiency Score</span>
                         </div>
-                        <div className="text-3xl font-bold">You saved 42 mins of driving today.</div>
+                        <div className="text-3xl font-bold">
+                            {loading ? (
+                                <span className="flex items-center gap-3">
+                                    <Loader2 className="w-6 h-6 animate-spin" />
+                                    Calculating savings...
+                                </span>
+                            ) : (
+                                <>You saved <span className="text-green-600">{timeSaved}</span> of driving today.</>
+                            )}
+                        </div>
+                        {error && (
+                            <p className="text-sm text-gray-400 mt-2">{error}</p>
+                        )}
                     </motion.div>
                 </div>
             </div>

@@ -2,8 +2,10 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from backend.core.logging import configure_logging, get_logger
 from backend.api.routes import router as routes_router
+from backend.api.places import router as places_router
 from contextlib import asynccontextmanager
 import time 
+from backend.api.reccomend import router as recommend_router
 
 #1 Configure Login on Startup
 
@@ -20,6 +22,8 @@ logger = get_logger('Odyssey.main')
 
 # Include routers
 app.include_router(routes_router)
+app.include_router(places_router)
+app.include_router(recommend_router)
 
 # 2. Middleware for Request Logging
 @app.middleware('http')

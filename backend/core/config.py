@@ -1,0 +1,44 @@
+"""
+Configuration settings for Odyssey backend.
+Uses pydantic-settings to load from environment variables.
+"""
+
+from pydantic_settings import BaseSettings
+from functools import lru_cache
+
+
+class Settings(BaseSettings):
+    # Google APIs
+    GOOGLE_MAPS_API_KEY: str = ""
+    GOOGLE_PLACES_API_KEY: str = ""  # Can be same as Maps key
+    
+    # OpenAI (for future AI recommendations)
+    OPENAI_API_KEY: str = ""
+    
+    # Pinecone (for future vector search)
+    PINECONE_API_KEY: str = ""
+    PINECONE_ENVIRONMENT: str = "us-east-1"
+    PINECONE_INDEX_NAME: str = "odyssey-places"
+    
+    # Redis (for production caching - not used in MVP)
+    REDIS_URL: str = "redis://localhost:6379"
+    
+    # App settings
+    ENVIRONMENT: str = "development"
+    DEFAULT_CITY: str = "san-francisco"
+    CACHE_TTL_SECONDS: int = 604800  # 7 days
+    
+    # API limits
+    MAX_PLACES_PER_SEARCH: int = 20
+    MAX_PLACE_SELECTIONS: int = 10
+    
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+        extra = "ignore"  # Ignore extra env vars
+
+
+@lru_cache
+def get_settings() -> Settings:
+    """Get cached settings instance."""
+    return Settings()
