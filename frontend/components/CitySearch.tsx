@@ -3,9 +3,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, MapPin, TrendingUp } from 'lucide-react';
+import { Search, MapPin, TrendingUp, Loader2 } from 'lucide-react';
 import { City, CitiesData } from '@/types';
 import { createPortal } from 'react-dom';
+import { autocompleteCities, CityAutocompleteResult } from '@/services/api';
 
 interface CitySearchProps {
     onSelect?: (city: City) => void;
@@ -20,6 +21,78 @@ interface DropdownPosition {
     width: number;
 }
 
+// Featured cities to show when no query (trending)
+const FEATURED_CITIES: City[] = [
+    {
+        name: "San Francisco",
+        slug: "san-francisco",
+        region: "Bay Area",
+        coordinates: { lat: 37.7749, lng: -122.4194 },
+        description: "The City by the Bay - iconic bridges, steep hills, world-class food",
+        image: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800",
+        tags: ["urban", "food", "culture", "iconic"]
+    },
+    {
+        name: "Los Angeles",
+        slug: "los-angeles",
+        region: "Southern California",
+        coordinates: { lat: 34.0522, lng: -118.2437 },
+        description: "Entertainment capital with beaches, mountains, and endless sunshine",
+        image: "https://images.unsplash.com/photo-1534190760961-74e8c1c5c3da?w=800",
+        tags: ["urban", "beaches", "entertainment", "diverse"]
+    },
+    {
+        name: "San Diego",
+        slug: "san-diego",
+        region: "Southern California",
+        coordinates: { lat: 32.7157, lng: -117.1611 },
+        description: "Perfect weather, stunning coastline, laid-back vibes",
+        image: "https://images.unsplash.com/photo-1538689621163-f5be0ad11c46?w=800",
+        tags: ["beaches", "relaxation", "outdoor", "family"]
+    },
+    {
+        name: "Napa Valley",
+        slug: "napa-valley",
+        region: "Wine Country",
+        coordinates: { lat: 38.2975, lng: -122.2869 },
+        description: "World-renowned wine region with gourmet dining",
+        image: "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=800",
+        tags: ["wine", "food", "romantic", "luxury"]
+    },
+    {
+        name: "Lake Tahoe",
+        slug: "lake-tahoe",
+        region: "Sierra Nevada",
+        coordinates: { lat: 39.0968, lng: -120.0324 },
+        description: "Crystal-clear alpine lake with skiing and hiking",
+        image: "https://images.unsplash.com/photo-1518623489648-a173ef7824f3?w=800",
+        tags: ["outdoor", "adventure", "skiing", "nature"]
+    },
+    {
+        name: "Palm Springs",
+        slug: "palm-springs",
+        region: "Desert",
+        coordinates: { lat: 33.8303, lng: -116.5453 },
+        description: "Mid-century modern paradise with desert beauty",
+        image: "https://images.unsplash.com/photo-1545153996-e01b50c6ecfa?w=800",
+        tags: ["desert", "relaxation", "architecture", "wellness"]
+    }
+];
+
+// Convert autocomplete result to City format
+function autocompleteToCity(result: CityAutocompleteResult): City {
+    const slug = result.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    return {
+        name: result.name,
+        slug: slug,
+        region: result.description,
+        coordinates: { lat: 0, lng: 0 }, // Will be resolved when selected
+        description: result.full_description,
+        image: "", // No image for dynamic results
+        tags: []
+    };
+}
+
 export default function CitySearch({
     onSelect,
     placeholder = "Where in California?",
@@ -27,14 +100,15 @@ export default function CitySearch({
     variant = 'hero'
 }: CitySearchProps) {
     const [query, setQuery] = useState('');
-    const [cities, setCities] = useState<City[]>([]);
-    const [filteredCities, setFilteredCities] = useState<City[]>([]);
+    const [filteredCities, setFilteredCities] = useState<City[]>(FEATURED_CITIES);
     const [isOpen, setIsOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [highlightedIndex, setHighlightedIndex] = useState(0);
     const [dropdownPosition, setDropdownPosition] = useState<DropdownPosition>({ top: 0, left: 0, width: 0 });
     const [mounted, setMounted] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const debounceRef = useRef<NodeJS.Timeout | null>(null);
     const router = useRouter();
 
     // Track mounted state for portal
@@ -77,29 +151,61 @@ export default function CitySearch({
         };
     }, [isOpen]);
 
-    // Load cities data
+    // Debounced search using Google Places Autocomplete API
     useEffect(() => {
-        fetch('/data/california-cities.json')
-            .then(res => res.json())
-            .then((data: CitiesData) => setCities(data.cities))
-            .catch(console.error);
-    }, []);
-
-    // Filter cities based on query
-    useEffect(() => {
-        if (query.length === 0) {
-            // Show trending cities when no query
-            setFilteredCities(cities.slice(0, 6));
-        } else {
-            const filtered = cities.filter(city =>
-                city.name.toLowerCase().includes(query.toLowerCase()) ||
-                city.region.toLowerCase().includes(query.toLowerCase()) ||
-                city.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
-            );
-            setFilteredCities(filtered.slice(0, 8));
+        // Clear any pending debounce
+        if (debounceRef.current) {
+            clearTimeout(debounceRef.current);
         }
-        setHighlightedIndex(0);
-    }, [query, cities]);
+
+        if (query.length === 0) {
+            // Show featured cities when no query
+            setFilteredCities(FEATURED_CITIES);
+            setIsLoading(false);
+            setHighlightedIndex(0);
+            return;
+        }
+
+        // First check if query matches any featured city (instant feedback)
+        const matchedFeatured = FEATURED_CITIES.filter(city =>
+            city.name.toLowerCase().includes(query.toLowerCase()) ||
+            city.region.toLowerCase().includes(query.toLowerCase())
+        );
+
+        if (matchedFeatured.length > 0) {
+            setFilteredCities(matchedFeatured);
+        }
+
+        // Debounce API call
+        setIsLoading(true);
+        debounceRef.current = setTimeout(async () => {
+            try {
+                const results = await autocompleteCities(query);
+                if (results.length > 0) {
+                    // Merge featured matches with API results, avoiding duplicates
+                    const featuredNames = new Set(matchedFeatured.map(c => c.name.toLowerCase()));
+                    const apiCities = results
+                        .filter(r => !featuredNames.has(r.name.toLowerCase()))
+                        .map(autocompleteToCity);
+
+                    setFilteredCities([...matchedFeatured, ...apiCities].slice(0, 10));
+                } else if (matchedFeatured.length === 0) {
+                    setFilteredCities([]);
+                }
+            } catch (error) {
+                console.error('Autocomplete error:', error);
+                // Keep featured matches on error
+            } finally {
+                setIsLoading(false);
+            }
+        }, 300); // 300ms debounce
+
+        return () => {
+            if (debounceRef.current) {
+                clearTimeout(debounceRef.current);
+            }
+        };
+    }, [query]);
 
     // Handle click outside
     useEffect(() => {
@@ -118,7 +224,8 @@ export default function CitySearch({
         if (onSelect) {
             onSelect(city);
         } else {
-            router.push(`/discover/${city.slug}`);
+            // Navigate to recommendations page for selected city
+            router.push(`/recommend/${city.slug}`);
         }
     }, [onSelect, router]);
 
@@ -189,18 +296,24 @@ export default function CitySearch({
             `}
                     />
                 </div>
-                <button
-                    onClick={() => filteredCities[0] && handleSelect(filteredCities[0])}
-                    className={`
-            ml-3 p-3 rounded-full transition-all
-            ${isHero
-                            ? 'bg-[#FF385C] hover:bg-[#D90B3E] text-white'
-                            : 'bg-[#FF385C] hover:bg-[#D90B3E] text-white'
-                        }
-          `}
-                >
-                    <Search className="w-5 h-5" />
-                </button>
+                {isLoading ? (
+                    <div className="ml-3 p-3">
+                        <Loader2 className={`w-5 h-5 animate-spin ${isHero ? 'text-gray-400' : 'text-gray-500'}`} />
+                    </div>
+                ) : (
+                    <button
+                        onClick={() => filteredCities[0] && handleSelect(filteredCities[0])}
+                        className={`
+                ml-3 p-3 rounded-full transition-all
+                ${isHero
+                                ? 'bg-[#FF385C] hover:bg-[#D90B3E] text-white'
+                                : 'bg-[#FF385C] hover:bg-[#D90B3E] text-white'
+                            }
+              `}
+                    >
+                        <Search className="w-5 h-5" />
+                    </button>
+                )}
             </div>
 
             {/* Dropdown - using portal to escape scroll container */}
@@ -235,6 +348,11 @@ export default function CitySearch({
                                             <TrendingUp className="w-3 h-3" />
                                             Trending in California
                                         </>
+                                    ) : isLoading ? (
+                                        <>
+                                            <Loader2 className="w-3 h-3 animate-spin" />
+                                            Searching...
+                                        </>
                                     ) : (
                                         <>
                                             <Search className="w-3 h-3" />
@@ -260,13 +378,17 @@ export default function CitySearch({
                                         `}
                                         onMouseEnter={() => setHighlightedIndex(index)}
                                     >
-                                        {/* City Image */}
-                                        <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
-                                            <img
-                                                src={city.image}
-                                                alt={city.name}
-                                                className="w-full h-full object-cover"
-                                            />
+                                        {/* City Image or Icon */}
+                                        <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-gray-800 flex items-center justify-center">
+                                            {city.image ? (
+                                                <img
+                                                    src={city.image}
+                                                    alt={city.name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <MapPin className={`w-5 h-5 ${isHero ? 'text-gray-500' : 'text-gray-400'}`} />
+                                            )}
                                         </div>
 
                                         {/* City Info */}
@@ -275,27 +397,29 @@ export default function CitySearch({
                                                 {city.name}
                                             </div>
                                             <div className={`text-sm truncate ${isHero ? 'text-gray-400' : 'text-gray-500'}`}>
-                                                {city.region} • {city.description.slice(0, 40)}...
+                                                {city.region}{city.description && city.description !== city.region ? ` • ${city.description.slice(0, 40)}...` : ''}
                                             </div>
                                         </div>
 
-                                        {/* Tags */}
-                                        <div className="hidden md:flex gap-1 flex-shrink-0">
-                                            {city.tags.slice(0, 2).map(tag => (
-                                                <span
-                                                    key={tag}
-                                                    className={`
-                                                        text-[10px] font-bold uppercase px-2 py-1 rounded-full
-                                                        ${isHero
-                                                            ? 'bg-white/10 text-gray-300'
-                                                            : 'bg-gray-100 text-gray-600'
-                                                        }
-                                                    `}
-                                                >
-                                                    {tag}
-                                                </span>
-                                            ))}
-                                        </div>
+                                        {/* Tags (only for featured cities) */}
+                                        {city.tags && city.tags.length > 0 && (
+                                            <div className="hidden md:flex gap-1 flex-shrink-0">
+                                                {city.tags.slice(0, 2).map(tag => (
+                                                    <span
+                                                        key={tag}
+                                                        className={`
+                                                            text-[10px] font-bold uppercase px-2 py-1 rounded-full
+                                                            ${isHero
+                                                                ? 'bg-white/10 text-gray-300'
+                                                                : 'bg-gray-100 text-gray-600'
+                                                            }
+                                                        `}
+                                                    >
+                                                        {tag}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        )}
                                     </motion.div>
                                 ))}
                             </div>
@@ -303,7 +427,7 @@ export default function CitySearch({
                             {/* Footer */}
                             <div className={`px-4 py-3 border-t ${isHero ? 'border-white/10' : 'border-gray-100'}`}>
                                 <div className={`text-xs ${isHero ? 'text-gray-500' : 'text-gray-400'}`}>
-                                    🌴 Explore all of California — more cities coming soon
+                                    🌴 Search any California city
                                 </div>
                             </div>
                         </motion.div>

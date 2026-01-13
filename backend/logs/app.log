@@ -128,3 +128,88 @@
 2026-01-08 21:23:33 | Odyssey.places | INFO | Cached 50 places for San Francisco
 2026-01-08 21:23:33 | Odyssey.main | INFO | POST /recommend/ | 200 | Time : 1.6964s
 2026-01-08 21:26:18 | Odyssey.main | INFO | Shutting Down Application...
+2026-01-08 21:32:55 | root     | INFO | Logging configured successfully
+2026-01-08 21:32:55 | root     | INFO | Log file is located at: backend/logs/app.log
+2026-01-08 21:32:55 | Odyssey.main | INFO | Starting Application...
+2026-01-08 21:35:24 | Odyssey.main | INFO | POST /recommend/ | 422 | Time : 0.0034s
+2026-01-08 21:35:28 | Odyssey.main | INFO | POST /recommend/ | 422 | Time : 0.0004s
+2026-01-08 21:41:20 | googlemaps.client | INFO | API queries_quota: 60
+2026-01-08 21:41:20 | Oddesey.recommend_api | INFO | Getting recommendations for San Francisco, CA
+2026-01-08 21:41:23 | Odyssey.places | INFO | Cached 50 places for San Francisco, CA
+2026-01-08 21:41:23 | Odyssey.main | INFO | POST /recommend/ | 200 | Time : 2.7329s
+2026-01-08 21:48:36 | Odyssey.main | INFO | POST /recommend/ | 422 | Time : 0.0021s
+2026-01-08 21:48:40 | Odyssey.main | INFO | POST /recommend/ | 422 | Time : 0.0005s
+2026-01-08 21:48:43 | Odyssey.main | INFO | POST /recommend/ | 422 | Time : 0.0006s
+2026-01-08 21:58:14 | Oddesey.recommend_api | INFO | Getting recommendations for San Francisco, CA
+2026-01-08 21:58:15 | Odyssey.places | INFO | Cached 38 places for San Francisco, CA
+2026-01-08 21:58:15 | Odyssey.main | INFO | POST /recommend/ | 200 | Time : 1.4304s
+2026-01-08 22:04:48 | Oddesey.recommend_api | INFO | Getting recommendations for San Francisco, CA
+2026-01-08 22:04:48 | Odyssey.places | INFO | Returning cached places for San Francisco, CA
+2026-01-08 22:04:48 | Odyssey.main | INFO | POST /recommend/ | 200 | Time : 0.0016s
+2026-01-08 22:13:01 | Odyssey.main | INFO | Shutting Down Application...
+2026-01-08 22:13:01 | root     | INFO | Logging configured successfully
+2026-01-08 22:13:01 | root     | INFO | Log file is located at: backend/logs/app.log
+2026-01-08 22:13:01 | Odyssey.main | INFO | Starting Application...
+2026-01-08 22:15:35 | Odyssey.main | INFO | Shutting Down Application...
+2026-01-08 22:15:35 | root     | INFO | Logging configured successfully
+2026-01-08 22:15:35 | root     | INFO | Log file is located at: backend/logs/app.log
+2026-01-08 22:15:35 | Odyssey.main | INFO | Starting Application...
+2026-01-08 22:15:52 | googlemaps.client | INFO | API queries_quota: 60
+2026-01-08 22:15:52 | Oddesey.recommend_api | INFO | Getting recommendations for Los Angeles, CA
+2026-01-08 22:15:54 | Odyssey.places | INFO | Cached 39 places for Los Angeles, CA
+2026-01-08 22:15:54 | Odyssey.main | INFO | POST /recommend/ | 200 | Time : 2.2058s
+2026-01-08 22:20:43 | Oddesey.recommend_api | INFO | Getting recommendations for San Francisco, CA
+2026-01-08 22:20:46 | Odyssey.places | INFO | Cached 50 places for San Francisco, CA
+2026-01-08 22:20:46 | Odyssey.main | INFO | POST /recommend/ | 200 | Time : 2.4478s
+2026-01-08 22:28:35 | Oddesey.recommend_api | INFO | Getting recommendations for Napa Valley, CA
+2026-01-08 22:28:37 | Odyssey.places | INFO | Cached 28 places for Napa Valley, CA
+2026-01-08 22:28:37 | Odyssey.main | INFO | POST /recommend/ | 200 | Time : 2.0692s
+2026-01-08 22:34:55 | Oddesey.recommend_api | INFO | Getting recommendations for San Francisco, CA
+2026-01-08 22:34:57 | Odyssey.places | INFO | Cached 39 places for San Francisco, CA
+2026-01-08 22:34:57 | Odyssey.main | INFO | POST /recommend/ | 200 | Time : 2.4310s
+2026-01-08 22:38:08 | Odyssey.main | INFO | Shutting Down Application...
+2026-01-09 00:32:51 | root     | INFO | Logging configured successfully
+2026-01-09 00:32:51 | root     | INFO | Log file is located at: backend/logs/app.log
+2026-01-09 00:32:51 | Odyssey.main | INFO | Starting Application...
+2026-01-09 00:35:41 | googlemaps.client | INFO | API queries_quota: 60
+2026-01-09 00:35:41 | Oddesey.recommend_api | INFO | Getting recommendations for San Diego, CA
+2026-01-09 00:35:42 | Odyssey.places | INFO | Cached 39 places for San Diego, CA
+2026-01-09 00:35:42 | Odyssey.main | INFO | POST /recommend/ | 200 | Time : 1.8787s
+2026-01-09 00:36:51 | Oddesey.recommend_api | INFO | Getting recommendations for Los Angeles, CA
+2026-01-09 00:37:09 | Odyssey.places | INFO | Cached 42 places for Los Angeles, CA
+2026-01-09 00:37:09 | Odyssey.main | INFO | POST /recommend/ | 200 | Time : 17.6691s
+2026-01-09 11:14:16 | root     | INFO | Logging configured successfully
+2026-01-09 11:14:16 | root     | INFO | Log file is located at: backend/logs/app.log
+2026-01-09 11:14:16 | Odyssey.main | INFO | Starting Application...
+2026-01-09 11:15:08 | googlemaps.client | INFO | API queries_quota: 60
+2026-01-09 11:15:08 | Oddesey.recommend_api | INFO | Getting recommendations for San Francisco, CA
+2026-01-09 11:15:10 | Odyssey.places | INFO | Cached 39 places for San Francisco, CA
+2026-01-09 11:15:10 | Odyssey.main | INFO | POST /recommend/ | 200 | Time : 1.8299s
+2026-01-09 11:52:43 | Odyssey.main | INFO | Shutting Down Application...
+2026-01-11 16:45:59 | root     | INFO | Logging configured successfully
+2026-01-11 16:45:59 | root     | INFO | Log file is located at: backend/logs/app.log
+2026-01-11 16:45:59 | Odyssey.main | INFO | Starting Application...
+2026-01-11 16:46:10 | Odyssey.main | INFO | Shutting Down Application...
+2026-01-11 16:47:02 | root     | INFO | Logging configured successfully
+2026-01-11 16:47:02 | root     | INFO | Log file is located at: backend/logs/app.log
+2026-01-11 16:47:02 | Odyssey.main | INFO | Starting Application...
+2026-01-11 16:47:29 | Odyssey.places_api | ERROR | Error in city autocomplete: No Google API key configured
+2026-01-11 16:47:29 | Odyssey.main | INFO | GET /api/places/autocomplete | 500 | Time : 0.0009s
+2026-01-11 16:48:54 | root     | INFO | Logging configured successfully
+2026-01-11 16:48:54 | root     | INFO | Log file is located at: backend/logs/app.log
+2026-01-11 16:48:54 | Odyssey.main | INFO | Starting Application...
+2026-01-11 16:48:58 | Odyssey.main | INFO | GET / | 404 | Time : 0.0006s
+2026-01-11 16:48:58 | Odyssey.main | INFO | GET /favicon.ico | 404 | Time : 0.0002s
+2026-01-11 16:49:06 | Odyssey.main | INFO | GET / | 404 | Time : 0.0003s
+2026-01-11 16:49:40 | googlemaps.client | INFO | API queries_quota: 60
+2026-01-11 16:49:40 | Odyssey.places | INFO | Autocomplete 'F' returned 5 California cities
+2026-01-11 16:49:40 | Odyssey.main | INFO | GET /api/places/autocomplete | 200 | Time : 0.1486s
+2026-01-11 16:49:41 | Odyssey.places | INFO | Autocomplete 'Fr' returned 3 California cities
+2026-01-11 16:49:41 | Odyssey.main | INFO | GET /api/places/autocomplete | 200 | Time : 0.0729s
+2026-01-11 16:49:44 | Odyssey.places | INFO | Autocomplete 'Fre' returned 3 California cities
+2026-01-11 16:49:44 | Odyssey.main | INFO | GET /api/places/autocomplete | 200 | Time : 0.0714s
+2026-01-11 16:49:48 | Odyssey.places | INFO | Autocomplete 'Fres' returned 3 California cities
+2026-01-11 16:49:48 | Odyssey.main | INFO | GET /api/places/autocomplete | 200 | Time : 0.0763s
+2026-01-11 16:52:21 | Oddesey.recommend_api | INFO | Getting recommendations for Fresno, CA
+2026-01-11 16:52:23 | Odyssey.places | INFO | Cached 22 places for Fresno, CA
+2026-01-11 16:52:23 | Odyssey.main | INFO | POST /recommend/ | 200 | Time : 2.0444s

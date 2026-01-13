@@ -32,7 +32,7 @@ export default function Home() {
       <JourneyLine />
 
       {/* 1. Cinematic Hero Section */}
-      <section ref={targetRef} className="min-h-screen pt-20 relative flex items-center justify-center">
+      <section ref={targetRef} className="min-h-screen pt-20 relative flex flex-col items-center justify-center">
         {/* Background Image: California Landscape */}
         <div className="absolute inset-0 z-0">
           <img
@@ -43,10 +43,10 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black" />
         </div>
 
-        {/* Hero Content */}
+        {/* Hero Text - Fades on scroll */}
         <motion.div
           style={{ opacity, scale, y }}
-          className="relative z-50 w-full max-w-4xl px-6 flex flex-col items-center text-center"
+          className="relative z-40 w-full max-w-4xl px-6 flex flex-col items-center text-center"
         >
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -77,13 +77,14 @@ export default function Home() {
             Tell us where you&apos;re going and what you love.
             We&apos;ll build the perfect itinerary with optimized routing.
           </motion.p>
+        </motion.div>
 
-          {/* City Search */}
+        {/* City Search - Does NOT fade */}
+        <div className="relative z-50 w-full max-w-2xl px-6">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="w-full max-w-2xl"
           >
             <CitySearch
               variant="hero"
@@ -101,14 +102,14 @@ export default function Home() {
             {['San Francisco', 'Napa Valley', 'Big Sur', 'Santa Barbara'].map((city) => (
               <a
                 key={city}
-                href={`/discover/${city.toLowerCase().replace(' ', '-')}`}
+                href={`/recommend/${city.toLowerCase().replace(' ', '-')}`}
                 className="text-sm text-gray-400 hover:text-white transition-colors px-3 py-1 rounded-full border border-white/10 hover:border-white/30"
               >
                 {city}
               </a>
             ))}
           </motion.div>
-        </motion.div>
+        </div>
       </section>
 
       {/* 2. Featured California Destinations */}

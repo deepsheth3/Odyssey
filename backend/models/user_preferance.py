@@ -18,7 +18,7 @@ class PriceRange(str, Enum):
     BUDGET = 'budget'
     MODERATE = 'moderate'
     UPSCALE = 'upscale'
-    LUXURY = 'expensive'
+    LUXURY = 'luxury'
 
 class TravelPace(str, Enum):
     RELAXED = 'relaxed'

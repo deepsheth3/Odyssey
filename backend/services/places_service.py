@@ -235,6 +235,61 @@ class PlacesService:
         
         return " • ".join(parts) if parts else ""
     
+    def autocomplete_cities(self, query: str, max_results: int = 10) -> List[Dict[str, Any]]:
+        """
+        Autocomplete California cities using Google Places API.
+        
+        Args:
+            query: Partial city name to search for
+            max_results: Maximum number of suggestions to return
+        
+        Returns:
+            List of city suggestions with name, place_id, and description
+        """
+        cache_k = cache_key("autocomplete_city", query.lower())
+        cached = self.cache.get(cache_k)
+        if cached:
+            logger.debug(f"Returning cached autocomplete for '{query}'")
+            return cached
+        
+        try:
+            # Use places_autocomplete with California restriction
+            results = self.client.places_autocomplete(
+                input_text=query,
+                types="(cities)",
+                components={"country": "us"},
+                # Bias toward California center
+                location=(36.7783, -119.4179),
+                radius=500000  # ~500km radius covering California
+            )
+            
+            # Filter to California cities only and format response
+            cities = []
+            for result in results[:max_results]:
+                description = result.get("description", "")
+                # Filter to only California results
+                if ", CA," in description or description.endswith(", CA") or "California" in description:
+                    # Extract just the city name
+                    main_text = result.get("structured_formatting", {}).get("main_text", "")
+                    secondary_text = result.get("structured_formatting", {}).get("secondary_text", "")
+                    
+                    cities.append({
+                        "name": main_text,
+                        "place_id": result.get("place_id"),
+                        "description": secondary_text or "California",
+                        "full_description": description
+                    })
+            
+            # Cache for 1 hour (autocomplete results don't change often)
+            self.cache.set(cache_k, cities, ttl=3600)
+            logger.info(f"Autocomplete '{query}' returned {len(cities)} California cities")
+            
+            return cities
+            
+        except Exception as e:
+            logger.error(f"Error in city autocomplete for '{query}': {e}")
+            return []
+    
     def get_photo_url(self, photo_reference: str, max_width: int = 400) -> str:
         """
         Get a URL for a place photo.

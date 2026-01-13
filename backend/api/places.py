@@ -14,6 +14,44 @@ logger = get_logger('Odyssey.places_api')
 router = APIRouter(prefix="/api/places", tags=["places"])
 
 
+class CityAutocompleteResult(BaseModel):
+    name: str
+    place_id: str
+    description: str
+    full_description: str
+
+
+class CityAutocompleteResponse(BaseModel):
+    query: str
+    count: int
+    cities: List[CityAutocompleteResult]
+
+
+@router.get("/autocomplete")
+async def autocomplete_cities(
+    q: str = Query(..., min_length=1, description="Partial city name to search for")
+) -> CityAutocompleteResponse:
+    """
+    Autocomplete California cities using Google Places API.
+    
+    As the user types, this returns matching California cities.
+    Use this for dynamic city search instead of a static city list.
+    """
+    try:
+        service = get_places_service()
+        cities = service.autocomplete_cities(query=q)
+        
+        return CityAutocompleteResponse(
+            query=q,
+            count=len(cities),
+            cities=[CityAutocompleteResult(**city) for city in cities]
+        )
+        
+    except Exception as e:
+        logger.error(f"Error in city autocomplete: {e}")
+        raise HTTPException(status_code=500, detail=f"Autocomplete failed: {str(e)}")
+
+
 class PlaceResponse(BaseModel):
     id: str
     name: str

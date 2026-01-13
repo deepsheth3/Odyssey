@@ -190,3 +190,40 @@ export async function getPriceRanges(): Promise<{ ranges: { value: string, label
     const response = await fetch(`${API_BASE_URL}/recommend/price-ranges`);
     return response.json();
 }
+
+// ============================================
+// City Autocomplete
+// ============================================
+
+export interface CityAutocompleteResult {
+    name: string;
+    place_id: string;
+    description: string;
+    full_description: string;
+}
+
+export interface CityAutocompleteResponse {
+    query: string;
+    count: number;
+    cities: CityAutocompleteResult[];
+}
+
+/**
+ * Autocomplete California cities using Google Places API
+ */
+export async function autocompleteCities(query: string): Promise<CityAutocompleteResult[]> {
+    if (!query || query.length < 1) {
+        return [];
+    }
+
+    const params = new URLSearchParams({ q: query });
+    const response = await fetch(`${API_BASE_URL}/api/places/autocomplete?${params}`);
+
+    if (!response.ok) {
+        console.error('City autocomplete failed:', response.statusText);
+        return [];
+    }
+
+    const data: CityAutocompleteResponse = await response.json();
+    return data.cities;
+}
