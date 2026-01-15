@@ -60,9 +60,11 @@ async def log_request(request: Request, call_next):
     return response
 
 app.add_middleware(
-    CORSMiddleware,
     allow_origins=[
-        '*',
+        "http://localhost:3000",
+        "https://odyssey-frontend.vercel.app", # Adjust this to your actual Vercel URL
+        "https://oddesey.vercel.app",
+        "https://oddesey-git-main-deepsheth3s-projects.vercel.app"
     ],
     allow_credentials=True,
     allow_methods=["*"],

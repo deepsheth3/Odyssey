@@ -227,3 +227,77 @@ export async function autocompleteCities(query: string): Promise<CityAutocomplet
     const data: CityAutocompleteResponse = await response.json();
     return data.cities;
 }
+// ============================================
+// Authentication & User
+// ============================================
+
+export interface AuthResponse {
+    access_token: string;
+    token_type: string;
+}
+
+export interface SearchHistoryItem {
+    city: string;
+    query?: string | null;
+    timestamp: string;
+}
+
+/**
+ * Helper to get headers with Auth token
+ */
+function getAuthHeaders() {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    return {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    };
+}
+
+export async function register(email: string, password: string): Promise<AuthResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || 'Registration failed');
+    }
+
+    return response.json();
+}
+
+export async function login(username: string, password: string): Promise<AuthResponse> {
+    // OAuth2PasswordRequestForm expects form data
+    const formData = new URLSearchParams();
+    formData.append('username', username);
+    formData.append('password', password);
+
+    const response = await fetch(`${API_BASE_URL}/api/auth/token`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData,
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || 'Login failed');
+    }
+
+    return response.json();
+}
+
+export async function getHistory(): Promise<SearchHistoryItem[]> {
+    const response = await fetch(`${API_BASE_URL}/api/users/me/history`, {
+        headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch history');
+    }
+
+    return response.json();
+}
