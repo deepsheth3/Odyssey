@@ -3,7 +3,6 @@ from backend.api.main import app
 from backend.core.database import Base, engine, get_db
 from backend.models.db import User
 from sqlalchemy.orm import Session
-import pytest
 
 # Reset DB for tests
 Base.metadata.drop_all(bind=engine)
@@ -15,14 +14,14 @@ def test_auth_flow_and_history():
     # 1. Register
     reg_res = client.post("/api/auth/register", json={
         "email": "test@odyssey.com",
-        "password": "securepassword123"
+        "password": "SecurePass123"
     })
     assert reg_res.status_code == 200, f"Register failed: {reg_res.text}"
     
     # 2. Login
     login_res = client.post("/api/auth/token", data={
         "username": "test@odyssey.com",
-        "password": "securepassword123"
+        "password": "SecurePass123"
     })
     assert login_res.status_code == 200, f"Login failed: {login_res.text}"
     token = login_res.json()["access_token"]
@@ -96,8 +95,8 @@ if __name__ == "__main__":
     try:
         test_auth_flow_and_history()
         test_image_fallback()
-        print("✅ All tests passed!")
+        print("[SUCCESS] All tests passed!")
     except Exception as e:
-        print(f"❌ Test failed: {e}")
+        print(f"[FAILED] Test failed: {e}")
         import traceback
         traceback.print_exc()

@@ -8,10 +8,10 @@ pinecone-client
 httpx
 googlemaps
 slowapi
-slowapi
 pytest
 sqlalchemy
 bcrypt
 python-jose[cryptography]
 python-multipart
 email-validator
+psycopg2-binary

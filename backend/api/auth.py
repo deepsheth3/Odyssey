@@ -10,7 +10,8 @@ from backend.core.security import (
     verify_password, 
     get_password_hash, 
     create_access_token, 
-    ACCESS_TOKEN_EXPIRE_MINUTES
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    validate_password
 )
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -25,6 +26,11 @@ class Token(BaseModel):
 
 @router.post("/register", response_model=Token)
 def register(user: UserCreate, db: Session = Depends(get_db)):
+    # Validate password strength
+    is_valid, error_msg = validate_password(user.password)
+    if not is_valid:
+        raise HTTPException(status_code=400, detail=error_msg)
+    
     db_user = db.query(User).filter(User.email == user.email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")

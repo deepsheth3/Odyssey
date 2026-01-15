@@ -8,7 +8,6 @@ pinecone-client
 httpx
 googlemaps
 slowapi
-slowapi
 pytest
 sqlalchemy
 bcrypt

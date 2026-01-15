@@ -70,6 +70,8 @@ export default function ItineraryMap({ places, cityName, loading, startLocation,
     const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
     const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
     const [geocodedPlaces, setGeocodedPlaces] = useState<Map<string, google.maps.LatLngLiteral>>(new Map());
+    const [startCoords, setStartCoords] = useState<google.maps.LatLngLiteral | null>(null);
+    const [endCoords, setEndCoords] = useState<google.maps.LatLngLiteral | null>(null);
 
     const { isLoaded, loadError } = useJsApiLoader({
         googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
@@ -110,6 +112,53 @@ export default function ItineraryMap({ places, cityName, loading, startLocation,
 
         setGeocodedPlaces(newGeocodedPlaces);
     }, [isLoaded, places]);
+
+    // Geocode start and end locations with debounce
+    useEffect(() => {
+        if (!isLoaded) return;
+
+        const timeoutId = setTimeout(() => {
+            const geocoder = new google.maps.Geocoder();
+
+            if (startLocation) {
+                console.log("Geocoding Start:", startLocation);
+                geocoder.geocode({ address: startLocation })
+                    .then(res => {
+                        if (res.results[0]) {
+                            const newCoords = {
+                                lat: res.results[0].geometry.location.lat(),
+                                lng: res.results[0].geometry.location.lng(),
+                            };
+                            console.log("Start Coords:", newCoords);
+                            setStartCoords(newCoords);
+                        } else {
+                            console.log("No results for start location");
+                        }
+                    })
+                    .catch(e => console.error("Failed to geocode start:", e));
+            }
+
+            if (endLocation) {
+                console.log("Geocoding End:", endLocation);
+                geocoder.geocode({ address: endLocation })
+                    .then(res => {
+                        if (res.results[0]) {
+                            const newCoords = {
+                                lat: res.results[0].geometry.location.lat(),
+                                lng: res.results[0].geometry.location.lng(),
+                            };
+                            console.log("End Coords:", newCoords);
+                            setEndCoords(newCoords);
+                        } else {
+                            console.log("No results for end location");
+                        }
+                    })
+                    .catch(e => console.error("Failed to geocode end:", e));
+            }
+        }, 1000); // 1 second debounce
+
+        return () => clearTimeout(timeoutId);
+    }, [isLoaded, startLocation, endLocation]);
 
     // Fetch actual driving directions from Google
     const fetchDirections = useCallback(() => {
@@ -232,6 +281,48 @@ export default function ItineraryMap({ places, cityName, loading, startLocation,
                         />
                     );
                 })}
+
+                {/* Start Location Marker */}
+                {startCoords && (
+                    <Marker
+                        position={startCoords}
+                        label={{
+                            text: "S",
+                            color: "black",
+                            fontWeight: "bold",
+                            fontSize: "14px",
+                        }}
+                        icon={{
+                            path: google.maps.SymbolPath.CIRCLE,
+                            scale: 12,
+                            fillColor: "#10B981", // Green
+                            fillOpacity: 1,
+                            strokeColor: "white",
+                            strokeWeight: 2,
+                        }}
+                    />
+                )}
+
+                {/* End Location Marker */}
+                {endCoords && (
+                    <Marker
+                        position={endCoords}
+                        label={{
+                            text: "E",
+                            color: "white",
+                            fontWeight: "bold",
+                            fontSize: "14px",
+                        }}
+                        icon={{
+                            path: google.maps.SymbolPath.CIRCLE,
+                            scale: 12,
+                            fillColor: "black",
+                            fillOpacity: 1,
+                            strokeColor: "white",
+                            strokeWeight: 2,
+                        }}
+                    />
+                )}
 
                 {/* Info window for selected place */}
                 {selectedPlace && geocodedPlaces.get(selectedPlace.id) && (

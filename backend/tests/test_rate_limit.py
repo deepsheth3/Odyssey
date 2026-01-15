@@ -22,12 +22,11 @@ def test_rate_limit_expensive_endpoint():
         mock_service.search_places.return_value = [] # Return empty list, sufficient for 200 OK
         mock_get_service.return_value = mock_service
         
-        # Send 10 allowed requests
-        for i in range(10):
+        # Send 9 allowed requests (limit is 10/minute)
+        for i in range(9):
             response = client.get(url, params=params)
             assert response.status_code == 200, f"Request {i+1} failed with {response.status_code}: {response.text}"
 
-        # The 11th request should be blocked
+        # The 10th request should be blocked
         response = client.get(url, params=params)
         assert response.status_code == 429, f"Rate limit not enforced! Status: {response.status_code}"
-

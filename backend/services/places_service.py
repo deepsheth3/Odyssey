@@ -161,32 +161,60 @@ class PlacesService:
             logger.error(f"Error fetching place details for {place_id}: {e}")
             return None
     
-    def search_places(self, query: str, city: str) -> List[Place]:
+    def search_places(
+        self, 
+        query: str, 
+        city: str,
+        place_type: Optional[str] = None,
+        min_price: Optional[int] = None,
+        max_price: Optional[int] = None,
+        open_now: Optional[bool] = None,
+        min_rating: Optional[float] = None
+    ) -> List[Place]:
         """
-        Search for places matching a query in a city.
-        
-        Args:
-            query: Search query (e.g., "best tacos")
-            city: City name
-        
-        Returns:
-            List of matching places
+        Search for places matching a query in a city with optional filters.
         """
-        cache_k = cache_key("search", query, city)
+        # Include filters in cache key
+        cache_k = cache_key("search", query, city, place_type, min_price, max_price, open_now)
         cached = self.cache.get(cache_k)
         if cached:
-            return [Place(**p) for p in cached]
+            places = [Place(**p) for p in cached]
+            # Apply post-fetch rating filter on cached results
+            if min_rating:
+                places = [p for p in places if (p.rating or 0) >= min_rating]
+            return places
         
         try:
-            results = self.client.places(query=f"{query} in {city}")
+            # Build arguments for Google Places API
+            search_query = f"{query} in {city}"
+            kwargs = {'query': search_query}
+            
+            if place_type:
+                kwargs['type'] = place_type
+            if min_price is not None:
+                kwargs['min_price'] = min_price
+            if max_price is not None:
+                kwargs['max_price'] = max_price
+            if open_now:
+                kwargs['open_now'] = True
+                
+            results = self.client.places(**kwargs)
             places = []
             
-            for result in results.get("results", [])[:10]:
+            for result in results.get("results", [])[:20]:
                 place = self._parse_place(result)
                 if place:
+                    # Filter by rating manually as API doesn't support it directly in text search?
+                    # Actually API doesn't, so we filter here.
+                    if min_rating and (place.rating or 0) < min_rating:
+                        continue
                     places.append(place)
             
+            # Cache the RAW results (before rating filter? No, cache the valid ones? 
+            # Better to cache the API response result, but we parse first.
+            # Let's cache the parsed list.
             self.cache.set(cache_k, [p.model_dump() for p in places])
+            
             return places
             
         except Exception as e:

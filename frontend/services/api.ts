@@ -160,7 +160,7 @@ export interface RecommendResponse {
  * Get personalized recommendations based on preferences
  */
 export async function getRecommendations(request: RecommendRequest): Promise<RecommendResponse> {
-    const response = await fetch(`${API_BASE_URL}/recommend/`, {
+    const response = await fetch(`${API_BASE_URL}/api/recommend/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -179,7 +179,7 @@ export async function getRecommendations(request: RecommendRequest): Promise<Rec
  * Get available activity types
  */
 export async function getActivityTypes(): Promise<{ activities: { value: string, label: string }[] }> {
-    const response = await fetch(`${API_BASE_URL}/recommend/activity-types`);
+    const response = await fetch(`${API_BASE_URL}/api/recommend/activity-types`);
     return response.json();
 }
 
@@ -187,7 +187,7 @@ export async function getActivityTypes(): Promise<{ activities: { value: string,
  * Get available price ranges
  */
 export async function getPriceRanges(): Promise<{ ranges: { value: string, label: string }[] }> {
-    const response = await fetch(`${API_BASE_URL}/recommend/price-ranges`);
+    const response = await fetch(`${API_BASE_URL}/api/recommend/price-ranges`);
     return response.json();
 }
 

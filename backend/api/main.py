@@ -5,7 +5,7 @@ from backend.api.routes import router as routes_router
 from backend.api.places import router as places_router
 from contextlib import asynccontextmanager
 import time 
-from backend.api.reccomend import router as recommend_router
+from backend.api.recommend import router as recommend_router
 
 #1 Configure Login on Startup
 
@@ -59,13 +59,13 @@ async def log_request(request: Request, call_next):
 
     return response
 
+# Use CORS origins from config
+from backend.core.config import get_settings
+cors_settings = get_settings()
+
 app.add_middleware(
-    allow_origins=[
-        "http://localhost:3000",
-        "https://odyssey-frontend.vercel.app", # Adjust this to your actual Vercel URL
-        "https://oddesey.vercel.app",
-        "https://oddesey-git-main-deepsheth3s-projects.vercel.app"
-    ],
+    CORSMiddleware,
+    allow_origins=cors_settings.cors_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

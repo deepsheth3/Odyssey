@@ -490,3 +490,71 @@
 2026-01-12 22:37:32 | Odyssey.routes | INFO | Getting route details for 5 locations
 2026-01-12 22:37:32 | Odyssey.main | INFO | POST /api/routes/details | 200 | Time : 0.1906s
 2026-01-13 10:51:54 | Odyssey.main | INFO | Shutting Down Application...
+2026-01-15 00:19:05 | root     | INFO | Logging configured successfully
+2026-01-15 00:19:05 | root     | INFO | Log file is located at: backend/logs/app.log
+2026-01-15 00:19:05 | Odyssey.main | INFO | Starting Application...
+2026-01-15 00:19:28 | Odyssey.main | INFO | Shutting Down Application...
+2026-01-15 00:19:28 | root     | INFO | Logging configured successfully
+2026-01-15 00:19:28 | root     | INFO | Log file is located at: backend/logs/app.log
+2026-01-15 00:19:28 | Odyssey.main | INFO | Starting Application...
+2026-01-15 00:21:47 | Odyssey.main | INFO | POST /api/auth/token | 401 | Time : 0.0082s
+2026-01-15 00:25:18 | Odyssey.main | INFO | POST /api/auth/register | 200 | Time : 0.1788s
+2026-01-15 00:25:22 | Odyssey.main | INFO | POST /api/auth/token | 200 | Time : 0.1712s
+2026-01-15 00:27:31 | Odyssey.main | INFO | Shutting Down Application...
+2026-01-15 00:27:33 | root     | INFO | Logging configured successfully
+2026-01-15 00:27:33 | root     | INFO | Log file is located at: backend/logs/app.log
+2026-01-15 00:27:33 | Odyssey.main | INFO | Starting Application...
+2026-01-15 00:28:09 | Odyssey.main | INFO | POST /api/auth/register | 200 | Time : 0.1956s
+2026-01-15 00:28:31 | googlemaps.client | INFO | API queries_quota: 60
+2026-01-15 00:28:32 | Odyssey.places | INFO | Autocomplete 'Los Angeles' returned 4 California cities
+2026-01-15 00:28:32 | Odyssey.main | INFO | GET /api/places/autocomplete | 200 | Time : 0.2505s
+2026-01-15 00:28:39 | Oddesey.recommend_api | INFO | Getting recommendations for Los Angeles, CA
+2026-01-15 00:28:42 | Odyssey.places | INFO | Cached 36 places for Los Angeles, CA
+2026-01-15 00:28:42 | Odyssey.main | INFO | POST /recommend/ | 200 | Time : 2.4892s
+2026-01-15 00:29:03 | Odyssey.routes | INFO | Optimizing route with 3 stops
+2026-01-15 00:29:03 | googlemaps.client | INFO | API queries_quota: 60
+2026-01-15 00:29:03 | Odyssey.routes | INFO | Route optimized! Saved 32 sec
+2026-01-15 00:29:03 | Odyssey.main | INFO | POST /api/routes/optimize | 200 | Time : 0.1726s
+2026-01-15 00:29:03 | Odyssey.routes | INFO | Getting route details for 4 locations
+2026-01-15 00:29:03 | Odyssey.main | INFO | POST /api/routes/details | 200 | Time : 0.2459s
+2026-01-15 00:34:58 | Oddesey.recommend_api | INFO | Getting recommendations for San Francisco, CA
+2026-01-15 00:34:59 | Odyssey.places | INFO | Cached 39 places for San Francisco, CA
+2026-01-15 00:34:59 | Odyssey.main | INFO | POST /recommend/ | 200 | Time : 1.3129s
+2026-01-15 00:35:18 | Odyssey.routes | INFO | Optimizing route with 2 stops
+2026-01-15 00:35:18 | Odyssey.routes | INFO | Route optimized! Saved 0 sec
+2026-01-15 00:35:18 | Odyssey.main | INFO | POST /api/routes/optimize | 200 | Time : 0.2009s
+2026-01-15 00:35:18 | Odyssey.routes | INFO | Getting route details for 3 locations
+2026-01-15 00:35:19 | Odyssey.main | INFO | POST /api/routes/details | 200 | Time : 0.1734s
+2026-01-15 00:51:14 | Odyssey.main | INFO | POST /api/auth/token | 401 | Time : 0.2052s
+2026-01-15 00:51:19 | Odyssey.main | INFO | POST /api/auth/token | 200 | Time : 0.2063s
+2026-01-15 00:51:41 | Oddesey.recommend_api | INFO | Getting recommendations for San Francisco, CA
+2026-01-15 00:51:41 | Odyssey.places | ERROR | Error searching park: ('Connection aborted.', ConnectionResetError(54, 'Connection reset by peer'))
+2026-01-15 00:51:42 | Odyssey.places | INFO | Cached 19 places for San Francisco, CA
+2026-01-15 00:51:42 | Odyssey.main | INFO | POST /recommend/ | 200 | Time : 1.1664s
+2026-01-15 00:52:11 | Odyssey.routes | INFO | Optimizing route with 3 stops
+2026-01-15 00:52:11 | Odyssey.routes | ERROR | Error optimizing route: ('Connection aborted.', ConnectionResetError(54, 'Connection reset by peer'))
+2026-01-15 00:52:11 | Odyssey.main | INFO | POST /api/routes/optimize | 500 | Time : 0.0072s
+2026-01-15 00:58:26 | Odyssey.main | INFO | Shutting Down Application...
+2026-01-15 00:58:26 | root     | INFO | Logging configured successfully
+2026-01-15 00:58:26 | root     | INFO | Log file is located at: backend/logs/app.log
+2026-01-15 00:58:26 | Odyssey.main | INFO | Starting Application...
+2026-01-15 00:58:28 | Odyssey.main | INFO | Shutting Down Application...
+2026-01-15 00:58:28 | root     | INFO | Logging configured successfully
+2026-01-15 00:58:28 | root     | INFO | Log file is located at: backend/logs/app.log
+2026-01-15 00:58:28 | Odyssey.main | INFO | Starting Application...
+2026-01-15 00:58:43 | Odyssey.main | INFO | Shutting Down Application...
+2026-01-15 00:58:43 | root     | INFO | Logging configured successfully
+2026-01-15 00:58:43 | root     | INFO | Log file is located at: backend/logs/app.log
+2026-01-15 00:58:43 | Odyssey.main | INFO | Starting Application...
+2026-01-15 11:25:42 | Odyssey.main | INFO | Shutting Down Application...
+2026-01-15 11:25:42 | root     | INFO | Logging configured successfully
+2026-01-15 11:25:42 | root     | INFO | Log file is located at: backend/logs/app.log
+2026-01-15 11:25:42 | Odyssey.main | INFO | Starting Application...
+2026-01-15 11:26:33 | Odyssey.main | INFO | Shutting Down Application...
+2026-01-15 11:26:34 | root     | INFO | Logging configured successfully
+2026-01-15 11:26:34 | root     | INFO | Log file is located at: backend/logs/app.log
+2026-01-15 11:26:34 | Odyssey.main | INFO | Starting Application...
+2026-01-15 11:26:51 | Odyssey.main | INFO | Shutting Down Application...
+2026-01-15 11:26:52 | root     | INFO | Logging configured successfully
+2026-01-15 11:26:52 | root     | INFO | Log file is located at: backend/logs/app.log
+2026-01-15 11:26:52 | Odyssey.main | INFO | Starting Application...

@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+.venv/
+venv/
+
+# Environment
+.env
+.env.local
+.env*.local
+
+# Database
+*.db
+odyssey.db
+
+# Build outputs
+.next/
+__pycache__/
+*.pyc
+*.pyo
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Test
+.pytest_cache/
+coverage/
+.coverage
+
+# Misc
+*.bak

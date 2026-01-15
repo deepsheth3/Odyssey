@@ -18,6 +18,7 @@ from backend.core.security import get_current_user
 from backend.models.db import User
 from backend.core.deps import get_current_user_optional
 from datetime import datetime
+from backend.services.ai_service import ai_service
 
 
 settings = get_settings()
@@ -199,9 +200,34 @@ async def search_places(
         service = get_places_service()
         city_query = city if "," in city else f"{city}, CA"
         
-        logger.info(f"Searching '{q}' in {city_query}")
+        # 1. AI Vibe Parsing
         
-        places = service.search_places(query=q, city=city_query)
+        # Only use AI for longer queries that might detail a "vibe" or specific constraints
+        # Short queries like "tacos" don't need AI.
+        ai_params = {}
+        search_term = q
+        
+        if len(q.split()) >= 2:
+            parsed = ai_service.parse_smart_search(q)
+            if parsed:
+                # Use the 'keyword' from AI as the main search term, 
+                # but fall back to original 'q' if AI fails to find a better keyword.
+                search_term = parsed.get("keyword") or q
+                ai_params = parsed
+                logger.info(f"AI Smart Search: '{q}' -> {parsed}")
+
+        logger.info(f"Searching '{search_term}' in {city_query} with params: {ai_params}")
+        
+        # 2. Search with filters
+        places = service.search_places(
+            query=search_term, 
+            city=city_query,
+            place_type=ai_params.get("type"),
+            min_price=ai_params.get("min_price"),
+            max_price=ai_params.get("max_price"),
+            open_now=ai_params.get("open_now"),
+            min_rating=ai_params.get("min_rating")
+        )
         
         return [
             PlaceResponse(

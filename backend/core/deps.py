@@ -1,11 +1,11 @@
 from typing import Optional
 from fastapi import Request, Depends
 from sqlalchemy.orm import Session
-from backend.core.security import get_current_user, oauth2_scheme
+from backend.core.security import get_current_user, oauth2_scheme, get_secret_key, ALGORITHM
 from backend.core.database import get_db
 from backend.models.db import User, SearchHistory
 from jose import jwt, JWTError
-from backend.core.security import SECRET_KEY, ALGORITHM
+
 
 async def get_current_user_optional(
     request: Request, 
@@ -24,7 +24,7 @@ async def get_current_user_optional(
         if scheme.lower() != "bearer":
             return None
         
-        payload = jwt.decode(param, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(param, get_secret_key(), algorithms=[ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
             return None
@@ -33,3 +33,4 @@ async def get_current_user_optional(
         return user
     except (JWTError, Exception):
         return None
+

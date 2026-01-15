@@ -6,13 +6,15 @@ from backend.services.places_service import get_places_service
 from backend.services.recommendation_system import get_recommendation_service
 from backend.core.logging import get_logger
 
-logger = get_logger('Oddesey.recommend_api')
+logger = get_logger('Odyssey.recommend_api')
 
-router = APIRouter(prefix='/recommend', tags=['Recommendation'])
+router = APIRouter(prefix='/api/recommend', tags=['Recommendation'])
+
 
 class RecommendRequest(BaseModel):
     city: str
     user_preference: UserPreference
+
 
 class RecommendedPlace(BaseModel):
     id: str
@@ -23,16 +25,16 @@ class RecommendedPlace(BaseModel):
     score: float
     reasons: List[str]
 
+
 class RecommendResponse(BaseModel):
     city: str
     count: int
     recommendations: List[RecommendedPlace]
 
+
 @router.post('/')
-async def get_recommedations(request: RecommendRequest) -> RecommendResponse:
-    """
-    Get personalized place recommedations based on preferences
-    """
+async def get_recommendations(request: RecommendRequest) -> RecommendResponse:
+    """Get personalized place recommendations based on preferences."""
     try:
         places_service = get_places_service()
         rec_service = get_recommendation_service()
@@ -43,7 +45,6 @@ async def get_recommedations(request: RecommendRequest) -> RecommendResponse:
         city_query = request.city
         logger.info(f'Getting recommendations for {city_query}')
         
-        #Map activities to place categories
         places = places_service.discover_places(
             city=city_query,
             categories=categories,
@@ -71,9 +72,10 @@ async def get_recommedations(request: RecommendRequest) -> RecommendResponse:
                 address=place.address,
                 rating=place.rating,
                 photo_url=photo_url,
-                score=round(item['score'],1),
+                score=round(item['score'], 1),
                 reasons=item['reasons']
-            ))        
+            ))
+        
         return RecommendResponse(
             city=city_query,
             count=len(recommendations),
@@ -84,11 +86,10 @@ async def get_recommedations(request: RecommendRequest) -> RecommendResponse:
         logger.error(f'Failed to get recommendations: {e}')
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.get('/activity-types')
 async def get_activity_types():
-    """
-    Get available activity types
-    """
+    """Get available activity types."""
     return {
         'activities': [
             {
@@ -98,11 +99,10 @@ async def get_activity_types():
         ]
     }
 
+
 @router.get('/price-ranges')
 async def get_price_ranges():
-    """
-    Get available prive ranges
-    """
+    """Get available price ranges."""
     return {
         "ranges": [
             {"value": "free", "label": "Free"},
