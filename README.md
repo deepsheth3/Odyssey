@@ -14,8 +14,8 @@
 ## ✨ Features
 
 ### 🔍 **Smart City Discovery**
-- Autocomplete search for California destinations
-- Curated data for 15+ cities from San Francisco to San Diego
+- Dynamic autocomplete powered by Google Places API
+- Search any city in California with real-time suggestions
 
 ### 🎯 **Personalized Recommendations**
 - Interactive preference quiz (activities, budget, pace)
@@ -134,6 +134,7 @@ Odyssey/
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/places/discover/{city}` | Discover places in a city |
+| GET | `/api/places/autocomplete?q=...` | Autocomplete California cities |
 | GET | `/api/places/search?q=...` | Search for specific places |
 | GET | `/api/places/categories` | Get available categories |
 
@@ -164,6 +165,7 @@ Odyssey/
 ## 🗺️ Roadmap
 
 - [x] City discovery with Google Places
+- [x] Dynamic city autocomplete via Google Places API
 - [x] Route optimization with TSP
 - [x] Preference-based recommendations
 - [ ] User authentication

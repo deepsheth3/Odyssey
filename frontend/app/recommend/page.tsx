@@ -1,14 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import PreferenceQuiz from '@/components/PreferenceQuiz';
 import { UserPreference, RecommendedPlace, getRecommendations } from '@/services/api';
-import { Star, Loader2, MapPin, Sparkles, ArrowRight, RotateCcw } from 'lucide-react';
+import { Star, Loader2, MapPin, Sparkles, ArrowRight, RotateCcw, Check, Plus } from 'lucide-react';
 
 export default function RecommendPage() {
+    const router = useRouter();
     const [step, setStep] = useState<'quiz' | 'loading' | 'results'>('quiz');
     const [recommendations, setRecommendations] = useState<RecommendedPlace[]>([]);
+    const [selectedPlaces, setSelectedPlaces] = useState<Set<string>>(new Set());
     const [city] = useState('San Francisco');
     const [error, setError] = useState<string | null>(null);
 
@@ -23,6 +26,9 @@ export default function RecommendPage() {
             });
 
             setRecommendations(response.recommendations);
+            // Auto-select top 5 recommendations
+            const top5 = response.recommendations.slice(0, 5).map(p => p.id);
+            setSelectedPlaces(new Set(top5));
             setStep('results');
         } catch (err) {
             console.error('Failed to get recommendations:', err);
@@ -30,6 +36,34 @@ export default function RecommendPage() {
             setStep('quiz');
         }
     };
+
+    const togglePlace = useCallback((id: string) => {
+        setSelectedPlaces(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(id)) {
+                newSet.delete(id);
+            } else {
+                newSet.add(id);
+            }
+            return newSet;
+        });
+    }, []);
+
+    const handleBuildItinerary = useCallback(() => {
+        const selected = recommendations
+            .filter(p => selectedPlaces.has(p.id))
+            .map(p => ({
+                id: p.id,
+                name: p.name,
+                address: p.address || `${p.name}, ${city}, CA`,
+                photo_url: p.photo_url,
+                rating: p.rating
+            }));
+
+        const citySlug = city.toLowerCase().replace(/\s+/g, '-');
+        const placesParam = encodeURIComponent(JSON.stringify(selected));
+        router.push(`/itinerary/${citySlug}?places=${placesParam}`);
+    }, [recommendations, selectedPlaces, city, router]);
 
     return (
         <div className="min-h-screen bg-black">
@@ -113,7 +147,7 @@ export default function RecommendPage() {
                             animate={{ opacity: 1 }}
                         >
                             {/* Header */}
-                            <div className="flex items-center justify-between mb-10">
+                            <div className="flex items-center justify-between mb-6">
                                 <div>
                                     <span className="inline-flex items-center gap-2 text-[#FF385C] font-bold text-sm uppercase tracking-widest mb-2">
                                         <Sparkles className="w-4 h-4" />
@@ -127,6 +161,7 @@ export default function RecommendPage() {
                                     onClick={() => {
                                         setStep('quiz');
                                         setRecommendations([]);
+                                        setSelectedPlaces(new Set());
                                     }}
                                     className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/20 text-white hover:bg-white/10 transition-all"
                                 >
@@ -135,76 +170,107 @@ export default function RecommendPage() {
                                 </button>
                             </div>
 
+                            {/* Selection info */}
+                            <div className="flex items-center gap-3 mb-6 text-gray-400">
+                                <span className="flex items-center gap-2">
+                                    <Check className="w-4 h-4 text-[#FF385C]" />
+                                    <span><span className="text-white font-semibold">{selectedPlaces.size}</span> places selected</span>
+                                </span>
+                                <span className="text-gray-600">•</span>
+                                <span>Click cards to add/remove from itinerary</span>
+                            </div>
+
                             {/* Results Grid */}
                             <div className="grid gap-4">
-                                {recommendations.map((place, i) => (
-                                    <motion.div
-                                        key={place.id}
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: i * 0.08 }}
-                                        className="group bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-2xl p-5 flex gap-5 transition-all cursor-pointer"
-                                    >
-                                        {/* Rank */}
-                                        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-xl font-bold text-white">
-                                            {i + 1}
-                                        </div>
-
-                                        {/* Image */}
-                                        {place.photo_url ? (
-                                            <img
-                                                src={place.photo_url}
-                                                alt={place.name}
-                                                className="w-28 h-28 rounded-xl object-cover flex-shrink-0"
-                                            />
-                                        ) : (
-                                            <div className="w-28 h-28 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
-                                                <MapPin className="w-8 h-8 text-gray-500" />
+                                {recommendations.map((place, i) => {
+                                    const isSelected = selectedPlaces.has(place.id);
+                                    return (
+                                        <motion.div
+                                            key={place.id}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: i * 0.08 }}
+                                            onClick={() => togglePlace(place.id)}
+                                            className={`
+                                                group rounded-2xl p-5 flex gap-5 transition-all cursor-pointer relative
+                                                ${isSelected
+                                                    ? 'bg-[#FF385C]/10 border-2 border-[#FF385C]'
+                                                    : 'bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20'
+                                                }
+                                            `}
+                                        >
+                                            {/* Selection indicator */}
+                                            <div className={`
+                                                absolute top-4 left-4 w-6 h-6 rounded-full flex items-center justify-center transition-all z-10
+                                                ${isSelected
+                                                    ? 'bg-[#FF385C] text-white'
+                                                    : 'bg-white/10 border border-white/20 text-transparent group-hover:border-white/40'
+                                                }
+                                            `}>
+                                                {isSelected ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4 text-gray-500 group-hover:text-white" />}
                                             </div>
-                                        )}
 
-                                        {/* Content */}
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-start justify-between gap-4 mb-2">
-                                                <div>
-                                                    <h3 className="text-xl font-bold text-white group-hover:text-[#FF385C] transition-colors">
-                                                        {place.name}
-                                                    </h3>
-                                                    {place.address && (
-                                                        <p className="text-sm text-gray-400 truncate mt-1">
-                                                            {place.address}
-                                                        </p>
+                                            {/* Rank */}
+                                            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-xl font-bold text-white ml-6">
+                                                {i + 1}
+                                            </div>
+
+                                            {/* Image */}
+                                            {place.photo_url ? (
+                                                <img
+                                                    src={place.photo_url}
+                                                    alt={place.name}
+                                                    className="w-28 h-28 rounded-xl object-cover flex-shrink-0"
+                                                />
+                                            ) : (
+                                                <div className="w-28 h-28 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
+                                                    <MapPin className="w-8 h-8 text-gray-500" />
+                                                </div>
+                                            )}
+
+                                            {/* Content */}
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-start justify-between gap-4 mb-2">
+                                                    <div>
+                                                        <h3 className={`text-xl font-bold transition-colors ${isSelected ? 'text-[#FF385C]' : 'text-white group-hover:text-[#FF385C]'}`}>
+                                                            {place.name}
+                                                        </h3>
+                                                        {place.address && (
+                                                            <p className="text-sm text-gray-400 truncate mt-1">
+                                                                {place.address}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                    {place.rating && (
+                                                        <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1.5 rounded-full flex-shrink-0">
+                                                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                                            <span className="font-semibold text-white">{place.rating}</span>
+                                                        </div>
                                                     )}
                                                 </div>
-                                                {place.rating && (
-                                                    <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1.5 rounded-full flex-shrink-0">
-                                                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                                                        <span className="font-semibold text-white">{place.rating}</span>
+
+                                                {/* Match Reasons */}
+                                                {place.reasons.length > 0 && (
+                                                    <div className="flex flex-wrap gap-2 mt-3">
+                                                        {place.reasons.map((reason, j) => (
+                                                            <span
+                                                                key={j}
+                                                                className="text-xs font-medium bg-[#FF385C]/20 text-[#FF385C] px-3 py-1 rounded-full"
+                                                            >
+                                                                {reason}
+                                                            </span>
+                                                        ))}
                                                     </div>
                                                 )}
                                             </div>
 
-                                            {/* Match Reasons */}
-                                            {place.reasons.length > 0 && (
-                                                <div className="flex flex-wrap gap-2 mt-3">
-                                                    {place.reasons.map((reason, j) => (
-                                                        <span
-                                                            key={j}
-                                                            className="text-xs font-medium bg-[#FF385C]/20 text-[#FF385C] px-3 py-1 rounded-full"
-                                                        >
-                                                            {reason}
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        {/* Arrow */}
-                                        <div className="flex items-center">
-                                            <ArrowRight className="w-5 h-5 text-gray-500 group-hover:text-[#FF385C] group-hover:translate-x-1 transition-all" />
-                                        </div>
-                                    </motion.div>
-                                ))}
+                                            {/* Arrow */}
+                                            <div className="flex items-center">
+                                                <ArrowRight className={`w-5 h-5 transition-all ${isSelected ? 'text-[#FF385C] translate-x-1' : 'text-gray-500 group-hover:text-[#FF385C] group-hover:translate-x-1'}`} />
+                                            </div>
+                                        </motion.div>
+                                    );
+                                })}
                             </div>
 
                             {recommendations.length === 0 && (
@@ -216,21 +282,37 @@ export default function RecommendPage() {
                             )}
 
                             {/* CTA */}
-                            {recommendations.length > 0 && (
+                            {recommendations.length > 0 && selectedPlaces.size > 0 && (
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.5 }}
                                     className="mt-12 text-center"
                                 >
-                                    <a
-                                        href={`/discover/san-francisco`}
+                                    <button
+                                        onClick={handleBuildItinerary}
                                         className="inline-flex items-center gap-3 bg-[#FF385C] hover:bg-[#D90B3E] text-white px-8 py-4 rounded-full font-bold text-lg transition-all group"
                                     >
                                         <Sparkles className="w-5 h-5" />
-                                        Build My Itinerary
+                                        Build Itinerary with {selectedPlaces.size} Places
                                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                                    </a>
+                                    </button>
+                                    <p className="text-gray-500 text-sm mt-3">
+                                        We'll optimize your route to save driving time
+                                    </p>
+                                </motion.div>
+                            )}
+
+                            {/* Show message if no places selected */}
+                            {recommendations.length > 0 && selectedPlaces.size === 0 && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="mt-12 text-center"
+                                >
+                                    <p className="text-gray-400">
+                                        Select at least one place to build your itinerary
+                                    </p>
                                 </motion.div>
                             )}
                         </motion.div>

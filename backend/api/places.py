@@ -8,6 +8,12 @@ from backend.services.places_service import get_places_service, PLACE_TYPES
 from backend.services.cache_service import get_cache
 from backend.core.logging import get_logger
 from pydantic import BaseModel
+from backend.core.limiter import limiter
+from backend.core.config import get_settings
+from fastapi import Request
+
+settings = get_settings()
+
 
 logger = get_logger('Odyssey.places_api')
 
@@ -28,7 +34,10 @@ class CityAutocompleteResponse(BaseModel):
 
 
 @router.get("/autocomplete")
+@limiter.limit(settings.RATE_LIMIT_GLOBAL)
 async def autocomplete_cities(
+    request: Request,
+
     q: str = Query(..., min_length=1, description="Partial city name to search for")
 ) -> CityAutocompleteResponse:
     """
@@ -73,10 +82,13 @@ class DiscoverResponse(BaseModel):
 
 
 @router.get("/discover/{city}")
+@limiter.limit(settings.RATE_LIMIT_EXPENSIVE)
 async def discover_places(
+    request: Request,
     city: str,
     categories: Optional[str] = Query(None, description="Comma-separated categories: attractions,restaurants,cafes,outdoor,culture,nightlife,shopping"),
     limit: int = Query(20, ge=1, le=50, description="Max number of places to return")
+
 ) -> DiscoverResponse:
     """
     Discover popular places in a city.
@@ -154,9 +166,12 @@ async def discover_places(
 
 
 @router.get("/search")
+@limiter.limit(settings.RATE_LIMIT_EXPENSIVE)
 async def search_places(
+    request: Request,
     q: str = Query(..., min_length=2, description="Search query"),
     city: str = Query("San Francisco", description="City to search in")
+
 ) -> List[PlaceResponse]:
     """
     Search for places matching a query.
@@ -191,7 +206,9 @@ async def search_places(
 
 
 @router.get("/detail/{place_id}")
-async def get_place_detail(place_id: str) -> PlaceResponse:
+@limiter.limit(settings.RATE_LIMIT_EXPENSIVE)
+async def get_place_detail(request: Request, place_id: str) -> PlaceResponse:
+
     """
     Get detailed information about a specific place.
     """

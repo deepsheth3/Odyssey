@@ -6,7 +6,14 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
 from backend.core.route_optimizer import get_optimizer
+from backend.core.route_optimizer import get_optimizer
 from backend.core.logging import get_logger
+from backend.core.limiter import limiter
+from backend.core.config import get_settings
+from fastapi import Request
+
+settings = get_settings()
+
 
 logger = get_logger('Odyssey.routes')
 
@@ -24,19 +31,21 @@ class RouteDetailsRequest(BaseModel):
 
 
 @router.post("/optimize")
-async def optimize_route(request: OptimizeRouteRequest):
+@limiter.limit(settings.RATE_LIMIT_EXPENSIVE)
+async def optimize_route(request: Request, body: OptimizeRouteRequest):
     """
     Optimize the order of stops to minimize total travel time.
     Returns the optimized order along with time and distance savings.
     """
     try:
-        logger.info(f"Optimizing route with {len(request.stops)} stops")
+        logger.info(f"Optimizing route with {len(body.stops)} stops")
         optimizer = get_optimizer()
         result = optimizer.optimize_route(
-            start=request.start,
-            stops=request.stops,
-            end=request.end
+            start=body.start,
+            stops=body.stops,
+            end=body.end
         )
+
         
         # Convert seconds to human-readable format
         result["time_saved_formatted"] = format_duration(result["time_saved_seconds"])
@@ -54,14 +63,16 @@ async def optimize_route(request: OptimizeRouteRequest):
 
 
 @router.post("/details")
-async def get_route_details(request: RouteDetailsRequest):
+@limiter.limit(settings.RATE_LIMIT_GLOBAL)
+async def get_route_details(request: Request, body: RouteDetailsRequest):
     """
     Get detailed travel information between each stop in the provided order.
     """
     try:
-        logger.info(f"Getting route details for {len(request.locations)} locations")
+        logger.info(f"Getting route details for {len(body.locations)} locations")
         optimizer = get_optimizer()
-        details = optimizer.get_route_details(request.locations)
+        details = optimizer.get_route_details(body.locations)
+
         
         # Calculate totals
         total_duration = sum(d["duration_seconds"] or 0 for d in details)
@@ -83,7 +94,9 @@ async def get_route_details(request: RouteDetailsRequest):
 
 
 @router.get("/calculate")
-async def calculate_travel_time(origin: str, destination: str):
+@limiter.limit(settings.RATE_LIMIT_GLOBAL)
+async def calculate_travel_time(request: Request, origin: str, destination: str):
+
     """
     Calculate travel time between two locations.
     """

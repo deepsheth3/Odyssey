@@ -30,7 +30,13 @@ class Settings(BaseSettings):
     
     # API limits
     MAX_PLACES_PER_SEARCH: int = 20
+
     MAX_PLACE_SELECTIONS: int = 10
+
+    # Rate Limiting
+    RATE_LIMIT_GLOBAL: str = "100/minute"
+    RATE_LIMIT_EXPENSIVE: str = "10/minute"
+
     
     class Config:
         env_file = ".env"

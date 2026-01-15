@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import PreferenceQuiz from '@/components/PreferenceQuiz';
 import { UserPreference, RecommendedPlace, getRecommendations } from '@/services/api';
-import { Star, MapPin, Sparkles, ArrowRight, RotateCcw, Check, Calendar } from 'lucide-react';
+import { Star, MapPin, Sparkles, ArrowRight, RotateCcw, Check, Calendar, X, Home, Navigation, RotateCw } from 'lucide-react';
 import { City } from '@/types';
 
 export default function RecommendCityPage() {
@@ -18,6 +18,11 @@ export default function RecommendCityPage() {
     const [selectedPlaces, setSelectedPlaces] = useState<Set<string>>(new Set());
     const [city, setCity] = useState<City | null>(null);
     const [error, setError] = useState<string | null>(null);
+
+    // Start location modal state
+    const [showStartModal, setShowStartModal] = useState(false);
+    const [startLocation, setStartLocation] = useState('');
+    const [roundTrip, setRoundTrip] = useState(true);
 
     // Derive city name from slug (for cities not in static JSON)
     const derivedCityName = citySlug
@@ -96,10 +101,25 @@ export default function RecommendCityPage() {
     };
 
     const handleBuildItinerary = () => {
+        // Show modal to get start location
+        setShowStartModal(true);
+    };
+
+    const handleConfirmStart = () => {
         // Get selected places data and navigate to itinerary page
-        const selectedData = recommendations.filter(p => selectedPlaces.has(p.id));
-        const placeIds = selectedData.map(p => p.id).join(',');
-        router.push(`/itinerary/${citySlug}?places=${placeIds}`);
+        const selectedData = recommendations
+            .filter(p => selectedPlaces.has(p.id))
+            .map(p => ({
+                id: p.id,
+                name: p.name,
+                address: p.address || `${p.name}, ${cityName}, CA`,
+                photo_url: p.photo_url,
+                rating: p.rating
+            }));
+        const placesJson = encodeURIComponent(JSON.stringify(selectedData));
+        const start = encodeURIComponent(startLocation || `${cityName}, California`);
+        const rt = roundTrip ? '1' : '0';
+        router.push(`/itinerary/${citySlug}?places=${placesJson}&start=${start}&roundTrip=${rt}`);
     };
 
     // Format city name for display
@@ -360,6 +380,98 @@ export default function RecommendCityPage() {
                     </div>
                 </motion.div>
             )}
+
+            {/* Start Location Modal */}
+            <AnimatePresence>
+                {showStartModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
+                        onClick={() => setShowStartModal(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-[#1a1a1a] border border-white/10 rounded-2xl w-full max-w-lg p-6"
+                        >
+                            {/* Header */}
+                            <div className="flex items-center justify-between mb-6">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-[#FF385C]/20 flex items-center justify-center">
+                                        <Navigation className="w-5 h-5 text-[#FF385C]" />
+                                    </div>
+                                    <h2 className="text-xl font-bold text-white">Where are you starting from?</h2>
+                                </div>
+                                <button
+                                    onClick={() => setShowStartModal(false)}
+                                    className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                                >
+                                    <X className="w-5 h-5 text-gray-400" />
+                                </button>
+                            </div>
+
+                            {/* Start Location Input */}
+                            <div className="mb-6">
+                                <label className="block text-sm font-medium text-gray-400 mb-2">
+                                    Starting Point
+                                </label>
+                                <div className="relative">
+                                    <Home className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500" />
+                                    <input
+                                        type="text"
+                                        value={startLocation}
+                                        onChange={(e) => setStartLocation(e.target.value)}
+                                        placeholder={`e.g., Your home address or ${cityName} hotel`}
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white placeholder-gray-500 focus:outline-none focus:border-[#FF385C]/50"
+                                        autoFocus
+                                    />
+                                </div>
+                                <p className="text-gray-500 text-sm mt-2">
+                                    Leave empty to start from {cityName} city center
+                                </p>
+                            </div>
+
+                            {/* Round Trip Toggle */}
+                            <div className="flex items-center justify-between mb-8 p-4 bg-white/5 rounded-xl">
+                                <div className="flex items-center gap-3">
+                                    <RotateCw className="w-5 h-5 text-gray-400" />
+                                    <div>
+                                        <span className="text-white font-medium">Round trip</span>
+                                        <p className="text-gray-500 text-sm">Return to starting point</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setRoundTrip(!roundTrip)}
+                                    className={`w-14 h-8 rounded-full transition-colors ${roundTrip ? 'bg-[#FF385C]' : 'bg-white/20'}`}
+                                >
+                                    <div className={`w-6 h-6 rounded-full bg-white transition-transform ${roundTrip ? 'translate-x-7' : 'translate-x-1'}`} />
+                                </button>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setShowStartModal(false)}
+                                    className="flex-1 py-4 rounded-xl border border-white/10 text-white font-semibold hover:bg-white/5 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleConfirmStart}
+                                    className="flex-1 py-4 rounded-xl bg-[#FF385C] hover:bg-[#D90B3E] text-white font-semibold transition-colors flex items-center justify-center gap-2"
+                                >
+                                    <Calendar className="w-5 h-5" />
+                                    Build Itinerary
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

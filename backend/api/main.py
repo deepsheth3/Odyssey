@@ -25,6 +25,16 @@ app.include_router(routes_router)
 app.include_router(places_router)
 app.include_router(recommend_router)
 
+app.include_router(recommend_router)
+
+# Rate Limiter
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from backend.core.limiter import limiter
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 # 2. Middleware for Request Logging
 @app.middleware('http')
 async def log_request(request: Request, call_next):
