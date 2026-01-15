@@ -53,30 +53,43 @@ def test_auth_flow_and_history():
 def test_image_fallback():
     # Test that fallback logic generates correct URLs
     from backend.services.places_service import PlacesService, FALLBACK_IMAGES
-    service = PlacesService()
-    
-    # Case 1: No photo ref, type is 'park'
-    data_park = {
-        "place_id": "123",
-        "name": "Mission Dolores Park",
-        "types": ["park", "point_of_interest"]
-    }
-    place_park = service._parse_place(data_park)
-    url_park = service.get_photo_url(place_park.photo_reference)
-    assert "unsplash.com" in url_park
-    assert url_park == FALLBACK_IMAGES["park"]
-    
-    # Case 2: No photo ref, unknown type
-    data_unknown = {
-        "place_id": "456",
-        "name": "Mystery Spot",
-        "types": ["mystery"]
-    }
-    place_unknown = service._parse_place(data_unknown)
-    url_unknown = service.get_photo_url(place_unknown.photo_reference)
-    assert "unsplash.com" in url_unknown
-    
-    print("Image fallback logic verified!")
+    from unittest.mock import patch, MagicMock
+
+    # Mock settings and googlemaps Client
+    with patch("backend.services.places_service.get_settings") as mock_settings_func, \
+         patch("backend.services.places_service.googlemaps.Client") as mock_gmaps_client:
+        
+        mock_settings = MagicMock()
+        mock_settings.GOOGLE_MAPS_API_KEY = "AIzaSyDummyKeyForTesting"
+        mock_settings_func.return_value = mock_settings
+        
+        # Mock client instance
+        mock_gmaps_client.return_value = MagicMock()
+        
+        service = PlacesService()
+        
+        # Case 1: No photo ref, type is 'park'
+        data_park = {
+            "place_id": "123",
+            "name": "Mission Dolores Park",
+            "types": ["park", "point_of_interest"]
+        }
+        place_park = service._parse_place(data_park)
+        url_park = service.get_photo_url(place_park.photo_reference)
+        assert "unsplash.com" in url_park
+        assert url_park == FALLBACK_IMAGES["park"]
+        
+        # Case 2: No photo ref, unknown type
+        data_unknown = {
+            "place_id": "456",
+            "name": "Mystery Spot",
+            "types": ["mystery"]
+        }
+        place_unknown = service._parse_place(data_unknown)
+        url_unknown = service.get_photo_url(place_unknown.photo_reference)
+        assert "unsplash.com" in url_unknown
+        
+        print("Image fallback logic verified!")
 
 if __name__ == "__main__":
     # Manually run if executed as script
