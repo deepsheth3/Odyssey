@@ -51,8 +51,13 @@ class TestPlacesDiscovery:
         call_kwargs = mock_service.discover_places.call_args
         assert "categories" in call_kwargs.kwargs or len(call_kwargs[1]) > 0
 
-    def test_discover_invalid_category(self):
+    @patch("backend.api.places.get_places_service")
+    def test_discover_invalid_category(self, mock_get_service):
         """Test that invalid categories return 400 error."""
+        # Mock is set up but validation happens before service is called
+        mock_service = MagicMock()
+        mock_get_service.return_value = mock_service
+        
         response = client.get("/api/places/discover/Oakland?categories=invalid_category")
         
         assert response.status_code == 400
