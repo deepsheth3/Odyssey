@@ -10,7 +10,15 @@ from backend.core.logging import get_logger
 from pydantic import BaseModel
 from backend.core.limiter import limiter
 from backend.core.config import get_settings
-from fastapi import Request
+from fastapi import Request, Depends
+from sqlalchemy.orm import Session
+from backend.core.database import get_db
+from backend.models.db import SearchHistory
+from backend.core.security import get_current_user
+from backend.models.db import User
+from backend.core.deps import get_current_user_optional
+from datetime import datetime
+
 
 settings = get_settings()
 
@@ -87,20 +95,16 @@ async def discover_places(
     request: Request,
     city: str,
     categories: Optional[str] = Query(None, description="Comma-separated categories: attractions,restaurants,cafes,outdoor,culture,nightlife,shopping"),
-    limit: int = Query(20, ge=1, le=50, description="Max number of places to return")
+    limit: int = Query(20, ge=1, le=50, description="Max number of places to return"),
+    db: Session = Depends(get_db),
+    # Optional auth: if user is logged in, save history.
+    current_user: Optional[User] = Depends(get_current_user_optional)
 
 ) -> DiscoverResponse:
     """
     Discover popular places in a city.
     
-    Categories available:
-    - attractions: Tourist attractions and landmarks
-    - restaurants: Restaurants and eateries
-    - cafes: Coffee shops and bakeries
-    - outdoor: Parks and nature areas
-    - culture: Museums and galleries
-    - nightlife: Bars and clubs
-    - shopping: Malls and stores
+    ...
     """
     try:
         service = get_places_service()
@@ -119,6 +123,21 @@ async def discover_places(
         
         # Add state suffix if not present
         city_query = city if "," in city else f"{city}, CA"
+
+        if current_user:
+            try:
+                # Save to history
+                history = SearchHistory(
+                    user_id=current_user.id,
+                    city=city,
+                    query=categories, # store categories as query details
+                    timestamp=datetime.utcnow()
+                )
+                db.add(history)
+                db.commit()
+                logger.info(f"Saved search history for user {current_user.email}")
+            except Exception as e:
+                logger.error(f"Failed to save history: {e}")
         
         logger.info(f"Discovering places in {city_query}, categories: {cat_list}")
         

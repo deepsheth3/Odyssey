@@ -24,6 +24,17 @@ PLACE_TYPES = {
     "viewpoints": ["viewpoint", "observation_deck"],
 }
 
+# Fallback images for checks where Google doesn't return a photo
+FALLBACK_IMAGES = {
+    "park": "https://images.unsplash.com/photo-1519331379826-fcb5c14514e9?w=600",
+    "restaurant": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600",
+    "cafe": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600",
+    "bar": "https://images.unsplash.com/photo-1514362545857-3bc16549766b?w=600",
+    "store": "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600",
+    "museum": "https://images.unsplash.com/photo-1566127444979-b3d2b654e3d7?w=600",
+    "tourist_attraction": "https://images.unsplash.com/photo-1533105079780-92b9be482077?w=600",
+}
+
 
 class PlacesService:
     """
@@ -187,10 +198,30 @@ class PlacesService:
         try:
             location = data.get("geometry", {}).get("location", {})
             
-            # Get photo reference if available
+            # Get photo reference or fallback
             photos = data.get("photos", [])
             photo_ref = photos[0].get("photo_reference") if photos else None
             
+            # Note: We return None for photo_reference if it's missing,
+            # but the API response conversion will handle generating a URL for us?
+            # Actually, `get_photo_url` is called in the API layer.
+            # We should probably handle fallback there or store a 'fallback_url' string in Place?
+            # Place model has 'photo_reference' which is a string. 
+            # Let's override behaviors at the API layer or modify Place model?
+            # Easier: if we stick a specially formatted string in photo_reference,
+            # get_photo_url can detect it.
+            
+            if not photo_ref:
+                # Find matching type for fallback
+                place_types = data.get("types", [])
+                for t in place_types:
+                    if t in FALLBACK_IMAGES:
+                        photo_ref = f"FALLBACK:{FALLBACK_IMAGES[t]}"
+                        break
+                # Default generic fallback if no specific type match
+                if not photo_ref:
+                    photo_ref = "FALLBACK:https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600"
+
             return Place(
                 id=data.get("place_id", ""),
                 name=data.get("name", ""),
@@ -301,6 +332,9 @@ class PlacesService:
         Returns:
             URL string for the photo
         """
+        if photo_reference.startswith("FALLBACK:"):
+            return photo_reference.replace("FALLBACK:", "")
+
         settings = get_settings()
         api_key = settings.GOOGLE_MAPS_API_KEY
         return (

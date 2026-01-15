@@ -22,10 +22,18 @@ logger = get_logger('Odyssey.main')
 
 # Include routers
 app.include_router(routes_router)
+
+from backend.api.auth import router as auth_router
+from backend.api.users import router as users_router
+from backend.core.database import engine, Base
+
+# Create tables
+Base.metadata.create_all(bind=engine)
+
 app.include_router(places_router)
 app.include_router(recommend_router)
-
-app.include_router(recommend_router)
+app.include_router(auth_router)
+app.include_router(users_router)
 
 # Rate Limiter
 from slowapi import _rate_limit_exceeded_handler
