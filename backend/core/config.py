@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = ""  # Must be set via environment variable
     
     # CORS Origins (comma-separated in env var)
-    CORS_ORIGINS: str = "http://localhost:3000"
+    CORS_ORIGINS: str = "http://localhost:3000,https://odyssey-app-deepsheth.vercel.app"
     
     # Google APIs
     GOOGLE_MAPS_API_KEY: str = ""

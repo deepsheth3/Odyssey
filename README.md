@@ -10,6 +10,13 @@
 
 **The smartest California day trip planner.** Search a city, tell us your vibe, and get an AI-optimized itinerary with real-time routing.
 
+## 🌐 Live Demo
+
+| | URL |
+|--|-----|
+| **Frontend** | [odyssey-app-deepsheth.vercel.app](https://odyssey-app-deepsheth.vercel.app/) |
+| **Backend API** | [odyssey-8xog.onrender.com](https://odyssey-8xog.onrender.com) |
+
 ---
 
 ## ✨ Features
