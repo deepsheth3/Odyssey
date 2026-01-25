@@ -17,6 +17,10 @@
 | **Frontend** | [odyssey-app-deepsheth.vercel.app](https://odyssey-app-deepsheth.vercel.app/) |
 | **Backend API** | [odyssey-8xog.onrender.com](https://odyssey-8xog.onrender.com) |
 
+<p align="center">
+  <img src="assets/demo.webp" alt="Odyssey Demo" width="800" />
+</p>
+
 ---
 
 ## ✨ Features
